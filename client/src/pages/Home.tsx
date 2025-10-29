@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
 
 const SLIDES = [
   "/slides/slide-01.png",
@@ -14,12 +13,66 @@ const SLIDES = [
   "/slides/slide-10.png",
 ];
 
+interface Star {
+  id: number;
+  x: number;
+  y: number;
+  size: number;
+  opacity: number;
+  duration: number;
+}
+
 export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState<'next' | 'prev'>('next');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [fullscreenError, setFullscreenError] = useState<string | null>(null);
+  const [stars, setStars] = useState<Star[]>([]);
+  const [transitionEffect, setTransitionEffect] = useState<'flip' | 'zoom' | 'rotate' | 'slide'>('flip');
+  const starIdRef = useRef(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Generate random stars
+  useEffect(() => {
+    const generateStars = () => {
+      const newStars: Star[] = [];
+      for (let i = 0; i < 50; i++) {
+        newStars.push({
+          id: starIdRef.current++,
+          x: Math.random() * 100,
+          y: Math.random() * 100,
+          size: Math.random() * 2 + 0.5,
+          opacity: Math.random() * 0.7 + 0.3,
+          duration: Math.random() * 3 + 2,
+        });
+      }
+      setStars(newStars);
+    };
+
+    generateStars();
+
+    // Add new stars periodically
+    const interval = setInterval(() => {
+      setStars(prev => {
+        if (prev.length < 80) {
+          return [
+            ...prev,
+            {
+              id: starIdRef.current++,
+              x: Math.random() * 100,
+              y: Math.random() * 100,
+              size: Math.random() * 2 + 0.5,
+              opacity: Math.random() * 0.7 + 0.3,
+              duration: Math.random() * 3 + 2,
+            },
+          ];
+        }
+        return prev;
+      });
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     setImageLoaded(false);
@@ -28,8 +81,10 @@ export default function Home() {
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault();
         nextSlide();
       } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
         prevSlide();
       } else if (e.key === 'f' || e.key === 'F') {
         e.preventDefault();
@@ -52,68 +107,135 @@ export default function Home() {
     };
 
     document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+    document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('mozfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('MSFullscreenChange', handleFullscreenChange);
+    };
   }, []);
 
   const nextSlide = () => {
+    const effects: ('flip' | 'zoom' | 'rotate' | 'slide')[] = ['flip', 'zoom', 'rotate', 'slide'];
+    setTransitionEffect(effects[Math.floor(Math.random() * effects.length)]);
     setDirection('next');
     setCurrentSlide((prev) => (prev + 1) % SLIDES.length);
   };
 
   const prevSlide = () => {
+    const effects: ('flip' | 'zoom' | 'rotate' | 'slide')[] = ['flip', 'zoom', 'rotate', 'slide'];
+    setTransitionEffect(effects[Math.floor(Math.random() * effects.length)]);
     setDirection('prev');
     setCurrentSlide((prev) => (prev - 1 + SLIDES.length) % SLIDES.length);
   };
 
   const toggleFullscreen = async () => {
     try {
-      setFullscreenError(null);
-      
       if (!document.fullscreenElement) {
-        // Try to enter fullscreen
-        try {
-          await document.documentElement.requestFullscreen().catch(err => {
-            throw err;
-          });
-        } catch (err: any) {
-          // Fullscreen not available, show message but don't crash
-          setFullscreenError('Fullscreen não disponível neste navegador');
-          console.warn('Fullscreen not available:', err?.message);
+        const elem = containerRef.current || document.documentElement;
+        
+        if (elem.requestFullscreen) {
+          await elem.requestFullscreen();
+        } else if ((elem as any).webkitRequestFullscreen) {
+          await (elem as any).webkitRequestFullscreen();
+        } else if ((elem as any).mozRequestFullScreen) {
+          await (elem as any).mozRequestFullScreen();
+        } else if ((elem as any).msRequestFullscreen) {
+          await (elem as any).msRequestFullscreen();
         }
       } else {
-        // Exit fullscreen
-        try {
-          await document.exitFullscreen().catch(err => {
-            throw err;
-          });
-        } catch (err: any) {
-          console.warn('Error exiting fullscreen:', err?.message);
+        if (document.exitFullscreen) {
+          await document.exitFullscreen();
+        } else if ((document as any).webkitExitFullscreen) {
+          await (document as any).webkitExitFullscreen();
+        } else if ((document as any).mozCancelFullScreen) {
+          await (document as any).mozCancelFullScreen();
+        } else if ((document as any).msExitFullscreen) {
+          await (document as any).msExitFullscreen();
         }
       }
-    } catch (err: any) {
-      console.error('Fullscreen error:', err);
-      setFullscreenError('Erro ao alternar fullscreen');
+    } catch (err) {
+      console.warn('Fullscreen error:', err);
     }
   };
 
   const exitFullscreen = async () => {
     try {
       if (document.fullscreenElement) {
-        await document.exitFullscreen();
+        if (document.exitFullscreen) {
+          await document.exitFullscreen();
+        } else if ((document as any).webkitExitFullscreen) {
+          await (document as any).webkitExitFullscreen();
+        } else if ((document as any).mozCancelFullScreen) {
+          await (document as any).mozCancelFullScreen();
+        } else if ((document as any).msExitFullscreen) {
+          await (document as any).msExitFullscreen();
+        }
       }
     } catch (err) {
       console.warn('Error exiting fullscreen:', err);
     }
   };
 
+  const getTransitionClass = () => {
+    const baseClass = 'absolute inset-0 transition-all duration-700';
+    
+    switch (transitionEffect) {
+      case 'flip':
+        return `${baseClass} ${
+          direction === 'next'
+            ? 'animate-flip-right'
+            : 'animate-flip-left'
+        }`;
+      case 'zoom':
+        return `${baseClass} ${
+          direction === 'next'
+            ? 'animate-zoom-in'
+            : 'animate-zoom-out'
+        }`;
+      case 'rotate':
+        return `${baseClass} ${
+          direction === 'next'
+            ? 'animate-rotate-right'
+            : 'animate-rotate-left'
+        }`;
+      case 'slide':
+      default:
+        return `${baseClass} ${
+          direction === 'next'
+            ? 'animate-slide-in-right'
+            : 'animate-slide-in-left'
+        }`;
+    }
+  };
+
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-black">
-      {/* Slide container with transition effect */}
-      <div className={`absolute inset-0 transition-all duration-700 ${
-        direction === 'next' 
-          ? 'animate-slide-in-right' 
-          : 'animate-slide-in-left'
-      }`}>
+    <div ref={containerRef} className="relative w-full h-screen overflow-hidden bg-black">
+      {/* Animated stars background */}
+      <div className="absolute inset-0 z-0">
+        {stars.map((star) => (
+          <div
+            key={star.id}
+            className="absolute rounded-full bg-white animate-twinkle"
+            style={{
+              left: `${star.x}%`,
+              top: `${star.y}%`,
+              width: `${star.size}px`,
+              height: `${star.size}px`,
+              opacity: star.opacity,
+              animation: `twinkle ${star.duration}s ease-in-out infinite`,
+              boxShadow: `0 0 ${star.size * 2}px rgba(255, 255, 255, ${star.opacity})`,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Slide container with extreme transition effects */}
+      <div className={getTransitionClass()}>
         {/* Background gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black/10 to-black/20 z-10" />
         
@@ -129,55 +251,14 @@ export default function Home() {
 
         {/* Loading state */}
         {!imageLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black">
+          <div className="absolute inset-0 flex items-center justify-center bg-black z-20">
             <div className="w-16 h-16 border-4 border-purple-600 border-t-purple-300 rounded-full animate-spin" />
           </div>
         )}
       </div>
 
-      {/* Navigation controls - Bottom */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex gap-4 items-center bg-black/50 backdrop-blur-sm px-6 py-4 rounded-full">
-        <button
-          onClick={prevSlide}
-          className="p-2 rounded-full bg-purple-600 hover:bg-purple-500 text-white transition-all duration-300 hover:scale-110 active:scale-95"
-          aria-label="Slide anterior"
-          title="Seta esquerda ou clique"
-        >
-          <ChevronLeft size={28} />
-        </button>
-        
-        <div className="text-white text-sm font-bold min-w-16 text-center">
-          {currentSlide + 1} / {SLIDES.length}
-        </div>
-        
-        <button
-          onClick={nextSlide}
-          className="p-2 rounded-full bg-purple-600 hover:bg-purple-500 text-white transition-all duration-300 hover:scale-110 active:scale-95"
-          aria-label="Próximo slide"
-          title="Seta direita, espaço ou clique"
-        >
-          <ChevronRight size={28} />
-        </button>
-      </div>
-
-      {/* Fullscreen button - Top right */}
-      <button
-        onClick={toggleFullscreen}
-        className="absolute top-8 right-8 z-20 px-4 py-2 text-purple-300 border border-purple-500 rounded-lg hover:bg-purple-900 hover:text-purple-100 transition-all duration-300 text-sm font-medium bg-black/50 backdrop-blur-sm"
-        title="Pressione 'F' para tela cheia"
-      >
-        {isFullscreen ? '✕ Sair' : '⛶ Fullscreen'}
-      </button>
-
-      {/* Fullscreen error message */}
-      {fullscreenError && (
-        <div className="absolute top-20 right-8 z-20 px-4 py-2 bg-red-900/80 text-red-200 rounded-lg text-sm backdrop-blur-sm">
-          {fullscreenError}
-        </div>
-      )}
-
-      {/* Slide indicator dots - Top center */}
-      <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-20 flex gap-2 bg-black/50 backdrop-blur-sm px-4 py-3 rounded-full">
+      {/* Slide indicator dots - Top center (moved up) */}
+      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-30 flex gap-2 bg-black/50 backdrop-blur-sm px-4 py-2 rounded-full">
         {SLIDES.map((_, index) => (
           <button
             key={index}
@@ -196,42 +277,154 @@ export default function Home() {
         ))}
       </div>
 
+      {/* Fullscreen button - Top right */}
+      <button
+        onClick={toggleFullscreen}
+        className="absolute top-4 right-4 z-30 px-3 py-1 text-xs text-purple-300 border border-purple-500 rounded hover:bg-purple-900 hover:text-purple-100 transition-all duration-300 bg-black/50 backdrop-blur-sm"
+        title="Pressione 'F' para tela cheia"
+      >
+        {isFullscreen ? '✕' : '⛶'}
+      </button>
+
       {/* Keyboard hints - Bottom left */}
-      <div className="absolute bottom-8 left-8 z-20 text-xs text-purple-400 bg-black/50 backdrop-blur-sm px-4 py-3 rounded-lg hidden md:block">
-        <div className="font-semibold text-purple-300 mb-2">Atalhos:</div>
-        <div>← → Navegar | Espaço Próximo | F Fullscreen | ESC Sair</div>
+      <div className="absolute bottom-4 left-4 z-30 text-xs text-purple-400 bg-black/50 backdrop-blur-sm px-3 py-2 rounded hidden md:block">
+        <div className="font-semibold text-purple-300">← → Navegar | Espaço | F Fullscreen</div>
+      </div>
+
+      {/* Slide counter - Bottom right */}
+      <div className="absolute bottom-4 right-4 z-30 text-white text-sm font-bold bg-black/50 backdrop-blur-sm px-3 py-2 rounded">
+        {currentSlide + 1} / {SLIDES.length}
       </div>
 
       {/* Styles */}
       <style>{`
-        @keyframes slide-in-right {
+        @keyframes twinkle {
+          0%, 100% { opacity: 0.3; }
+          50% { opacity: 1; }
+        }
+
+        @keyframes flip-right {
           from {
             opacity: 0;
-            transform: translateX(100px) perspective(1000px) rotateY(45deg);
+            transform: perspective(1200px) rotateY(90deg) rotateZ(45deg);
           }
           to {
             opacity: 1;
-            transform: translateX(0) perspective(1000px) rotateY(0deg);
+            transform: perspective(1200px) rotateY(0deg) rotateZ(0deg);
+          }
+        }
+
+        @keyframes flip-left {
+          from {
+            opacity: 0;
+            transform: perspective(1200px) rotateY(-90deg) rotateZ(-45deg);
+          }
+          to {
+            opacity: 1;
+            transform: perspective(1200px) rotateY(0deg) rotateZ(0deg);
+          }
+        }
+
+        @keyframes zoom-in {
+          from {
+            opacity: 0;
+            transform: scale(0.3) rotateZ(180deg);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1) rotateZ(0deg);
+          }
+        }
+
+        @keyframes zoom-out {
+          from {
+            opacity: 0;
+            transform: scale(2.5) rotateZ(-180deg);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1) rotateZ(0deg);
+          }
+        }
+
+        @keyframes rotate-right {
+          from {
+            opacity: 0;
+            transform: perspective(1200px) rotateX(90deg) rotateZ(360deg);
+          }
+          to {
+            opacity: 1;
+            transform: perspective(1200px) rotateX(0deg) rotateZ(0deg);
+          }
+        }
+
+        @keyframes rotate-left {
+          from {
+            opacity: 0;
+            transform: perspective(1200px) rotateX(-90deg) rotateZ(-360deg);
+          }
+          to {
+            opacity: 1;
+            transform: perspective(1200px) rotateX(0deg) rotateZ(0deg);
+          }
+        }
+
+        @keyframes slide-in-right {
+          from {
+            opacity: 0;
+            transform: translateX(100%) skewX(20deg);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0) skewX(0deg);
           }
         }
 
         @keyframes slide-in-left {
           from {
             opacity: 0;
-            transform: translateX(-100px) perspective(1000px) rotateY(-45deg);
+            transform: translateX(-100%) skewX(-20deg);
           }
           to {
             opacity: 1;
-            transform: translateX(0) perspective(1000px) rotateY(0deg);
+            transform: translateX(0) skewX(0deg);
           }
         }
 
+        .animate-flip-right {
+          animation: flip-right 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .animate-flip-left {
+          animation: flip-left 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .animate-zoom-in {
+          animation: zoom-in 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .animate-zoom-out {
+          animation: zoom-out 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .animate-rotate-right {
+          animation: rotate-right 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .animate-rotate-left {
+          animation: rotate-left 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
         .animate-slide-in-right {
-          animation: slide-in-right 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+          animation: slide-in-right 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         .animate-slide-in-left {
-          animation: slide-in-left 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+          animation: slide-in-left 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .animate-twinkle {
+          animation: twinkle 3s ease-in-out infinite;
         }
       `}</style>
     </div>

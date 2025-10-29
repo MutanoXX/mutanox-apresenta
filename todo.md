@@ -17,4 +17,9 @@
 - [x] Melhorar efeito de introdução com animações extremas em tempo real
 - [x] Exibir imagens dos slides após a introdução
 - [x] Corrigir erro de permissions policy no fullscreen
+- [x] Remover botões roxos - navegação apenas por teclado
+- [x] Mover pontos de contagem para cima
+- [x] Melhorar fullscreen para funcionar em todos os navegadores
+- [x] Adicionar efeito extremo nas transições
+- [x] Adicionar estrelas animadas em tempo real no fundo
 
