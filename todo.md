@@ -13,4 +13,7 @@
 - [x] Arquivo vercel.json para deploy
 - [x] Responsividade e compatibilidade com navegadores
 - [x] Testes e validação final
+- [x] Converter PowerPoint em imagens para exibir slides reais
+- [x] Melhorar efeito de introdução com animações extremas em tempo real
+- [x] Exibir imagens dos slides após a introdução
 
