@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const SLIDES = [
   "/slides/slide-01.png",
@@ -19,6 +19,7 @@ export default function Home() {
   const [direction, setDirection] = useState<'next' | 'prev'>('next');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [fullscreenError, setFullscreenError] = useState<string | null>(null);
 
   useEffect(() => {
     setImageLoaded(false);
@@ -31,11 +32,11 @@ export default function Home() {
       } else if (e.key === 'ArrowLeft') {
         prevSlide();
       } else if (e.key === 'f' || e.key === 'F') {
+        e.preventDefault();
         toggleFullscreen();
       } else if (e.key === 'Escape') {
         if (isFullscreen) {
-          document.exitFullscreen();
-          setIsFullscreen(false);
+          exitFullscreen();
         }
       }
     };
@@ -43,6 +44,16 @@ export default function Home() {
     window.addEventListener('keydown', handleKeyPress);
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, [currentSlide, isFullscreen]);
+
+  // Listen for fullscreen changes
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
 
   const nextSlide = () => {
     setDirection('next');
@@ -56,15 +67,42 @@ export default function Home() {
 
   const toggleFullscreen = async () => {
     try {
+      setFullscreenError(null);
+      
       if (!document.fullscreenElement) {
-        await document.documentElement.requestFullscreen();
-        setIsFullscreen(true);
+        // Try to enter fullscreen
+        try {
+          await document.documentElement.requestFullscreen().catch(err => {
+            throw err;
+          });
+        } catch (err: any) {
+          // Fullscreen not available, show message but don't crash
+          setFullscreenError('Fullscreen não disponível neste navegador');
+          console.warn('Fullscreen not available:', err?.message);
+        }
       } else {
+        // Exit fullscreen
+        try {
+          await document.exitFullscreen().catch(err => {
+            throw err;
+          });
+        } catch (err: any) {
+          console.warn('Error exiting fullscreen:', err?.message);
+        }
+      }
+    } catch (err: any) {
+      console.error('Fullscreen error:', err);
+      setFullscreenError('Erro ao alternar fullscreen');
+    }
+  };
+
+  const exitFullscreen = async () => {
+    try {
+      if (document.fullscreenElement) {
         await document.exitFullscreen();
-        setIsFullscreen(false);
       }
     } catch (err) {
-      console.error('Fullscreen error:', err);
+      console.warn('Error exiting fullscreen:', err);
     }
   };
 
@@ -130,6 +168,13 @@ export default function Home() {
       >
         {isFullscreen ? '✕ Sair' : '⛶ Fullscreen'}
       </button>
+
+      {/* Fullscreen error message */}
+      {fullscreenError && (
+        <div className="absolute top-20 right-8 z-20 px-4 py-2 bg-red-900/80 text-red-200 rounded-lg text-sm backdrop-blur-sm">
+          {fullscreenError}
+        </div>
+      )}
 
       {/* Slide indicator dots - Top center */}
       <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-20 flex gap-2 bg-black/50 backdrop-blur-sm px-4 py-3 rounded-full">

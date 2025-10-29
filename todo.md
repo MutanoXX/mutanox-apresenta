@@ -16,4 +16,5 @@
 - [x] Converter PowerPoint em imagens para exibir slides reais
 - [x] Melhorar efeito de introdução com animações extremas em tempo real
 - [x] Exibir imagens dos slides após a introdução
+- [x] Corrigir erro de permissions policy no fullscreen
 
