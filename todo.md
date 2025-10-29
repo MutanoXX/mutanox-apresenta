@@ -6,6 +6,7 @@
 - [x] Efeito roxo e preto no fundo da introdução
 - [x] Cor roxa ao redor do nome com animação
 - [x] Sistema de slides com tema "Abaixo-Assinado e Manifesto"
+- [x] 10 slides com conteúdo real do PowerPoint
 - [x] Transições extremas entre slides
 - [x] Sistema de cookies para fullscreen automático (localStorage)
 - [x] Contorno seguindo o tema dos slides

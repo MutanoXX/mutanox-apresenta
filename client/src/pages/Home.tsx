@@ -4,38 +4,73 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 const slides = [
   {
     id: 1,
-    title: "Abaixo-Assinado",
+    title: "Abaixo-assinado e Manifesto",
     subtitle: "Ferramentas da Cidadania",
-    content: "Mobilização e participação democrática",
+    content: "Apresentação da disciplina | Alunos: Alan Filipy, Alan Gabriel, Victor Gabriel, Yasmin | Professor: Rinaldo | Escola Estadual São Luiz",
     color: "from-purple-600 to-purple-900",
   },
   {
     id: 2,
-    title: "Manifesto",
-    subtitle: "Voz do Povo",
-    content: "Transformação social através da ação coletiva",
+    title: "Objetivos da Aula",
+    subtitle: "O que vamos aprender",
+    content: "Entender • Participar • Unifique • Transforme",
     color: "from-purple-700 to-black",
   },
   {
     id: 3,
-    title: "Participação",
-    subtitle: "Democracia Ativa",
-    content: "Cada assinatura é um voto pela mudança",
+    title: "O que é um Abaixo-Assinado?",
+    subtitle: "Instrumento de Participação Popular",
+    content: "Documento que reúne assinaturas em apoio a uma causa. Objetivo: pressionar autoridades para tomar ações específicas. Exige número mínimo de assinaturas para ter validade legal. Hoje pode ser feito digitalmente através de plataformas online.",
     color: "from-purple-800 to-purple-950",
   },
   {
     id: 4,
-    title: "Direitos",
-    subtitle: "Liberdade de Expressão",
-    content: "Garantindo a voz de todos os cidadãos",
+    title: "O que é um Manifesto?",
+    subtitle: "Declaração Pública de Princípios",
+    content: "Texto dissertativo-argumentativo que expõe opiniões. Objetivo: mobilizar um movimento ou sociedade. Declara princípios e intenções de um grupo. Busca conscientizar e provocar reflexão.",
     color: "from-purple-600 to-black",
   },
   {
     id: 5,
-    title: "Ação",
-    subtitle: "Mudança Real",
-    content: "Do manifesto à realidade",
+    title: "Diferenças e Semelhanças",
+    subtitle: "Abaixo-Assinado vs Manifesto",
+    content: "Abaixo-Assinado: busca ação específica, requer assinaturas, formato formal, dirigido a autoridades. Manifesto: declara princípios, não exige assinaturas, formato livre, dirigido ao público. Semelhanças: instrumentos de cidadania, expressam vontade coletiva, buscam mudanças sociais.",
     color: "from-purple-700 to-purple-900",
+  },
+  {
+    id: 6,
+    title: "Exemplos de Manifestos Famosos",
+    subtitle: "História que mudou o mundo",
+    content: "Manifesto Comunista (1848) • Manifesto Futurista (1909) • Manifesto Antropófago (1928) • Manifesto Surrealista (1924)",
+    color: "from-purple-800 to-black",
+  },
+  {
+    id: 7,
+    title: "Abaixo-Assinados que Mudaram o Brasil",
+    subtitle: "Exemplos de sucesso",
+    content: "Diretas Já (1984) - Eleições diretas para presidente • Campanha contra a Fome (1993) - Programas sociais federais • Lei Maria da Penha (2006) - Proteção legal para mulheres",
+    color: "from-purple-600 to-purple-900",
+  },
+  {
+    id: 8,
+    title: "Como Criar um Abaixo-Assinado Online",
+    subtitle: "Passo a passo",
+    content: "1. Defina o objetivo (específico e claro) • 2. Escolha a plataforma (Change.org ou Petição Pública) • 3. Escreva o texto (explique o problema e solução) • 4. Divulgue (redes sociais e grupos)",
+    color: "from-purple-700 to-black",
+  },
+  {
+    id: 9,
+    title: "A Importância da Participação Popular",
+    subtitle: "Democracia se fortalece com participação ativa",
+    content: "Controle social • Representatividade • Transformação • Conscientização | A participação popular é o alicerce de uma democracia verdadeira — Paulo Freire",
+    color: "from-purple-800 to-purple-950",
+  },
+  {
+    id: 10,
+    title: "Conclusão",
+    subtitle: "Ferramentas de Transformação Social",
+    content: "Abaixo-assinados e manifestos são instrumentos históricos para expressar vontades coletivas. Plataformas online ampliam alcance e impacto. Use essas ferramentas para fazer a diferença na sua comunidade!",
+    color: "from-purple-600 to-black",
   },
 ];
 
@@ -95,13 +130,13 @@ export default function Home() {
       <div className={`relative z-10 h-full flex flex-col items-center justify-center text-center px-4 transition-all duration-700 ${
         direction === 'next' ? 'animate-slide-in-right' : 'animate-slide-in-left'
       }`}>
-        <h1 className="text-7xl md:text-8xl font-black text-white mb-4 drop-shadow-lg tracking-wider">
+        <h1 className="text-6xl md:text-7xl font-black text-white mb-4 drop-shadow-lg tracking-wider">
           {slide.title}
         </h1>
-        <p className="text-3xl md:text-5xl font-bold text-purple-200 mb-8 drop-shadow-md">
+        <p className="text-2xl md:text-4xl font-bold text-purple-200 mb-8 drop-shadow-md">
           {slide.subtitle}
         </p>
-        <p className="text-xl md:text-2xl text-purple-100 max-w-2xl drop-shadow-md">
+        <p className="text-lg md:text-xl text-purple-100 max-w-3xl drop-shadow-md leading-relaxed">
           {slide.content}
         </p>
       </div>
