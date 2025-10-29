@@ -22,4 +22,9 @@
 - [x] Melhorar fullscreen para funcionar em todos os navegadores
 - [x] Adicionar efeito extremo nas transições
 - [x] Adicionar estrelas animadas em tempo real no fundo
+- [x] Converter novo PowerPoint em imagens
+- [x] Atualizar slides com novo PowerPoint
+- [x] Melhorar fullscreen
+- [x] Melhorar animações do site
+- [x] Gerar arquivo ZIP com projeto completo
 
