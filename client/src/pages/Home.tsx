@@ -26,7 +26,6 @@ export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState<'next' | 'prev'>('next');
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
   const [stars, setStars] = useState<Star[]>([]);
   const [transitionEffect, setTransitionEffect] = useState<'flip' | 'zoom' | 'rotate' | 'slide' | 'shatter'>('flip');
   const starIdRef = useRef(0);
@@ -73,10 +72,6 @@ export default function Home() {
 
     return () => clearInterval(interval);
   }, []);
-
-  useEffect(() => {
-    setImageLoaded(false);
-  }, [currentSlide]);
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
@@ -252,27 +247,17 @@ export default function Home() {
         ))}
       </div>
 
-      {/* Slide container with extreme transition effects */}
+      {/* Slide container with extreme transition effects - NO LOADING STATE */}
       <div className={getTransitionClass()}>
         {/* Background gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 via-black/20 to-black/30 z-10" />
         
-        {/* Slide image */}
+        {/* Slide image - direct display, already pre-loaded */}
         <img
           src={SLIDES[currentSlide]}
           alt={`Slide ${currentSlide + 1}`}
-          className={`w-full h-full object-contain bg-black transition-opacity duration-700 ${
-            imageLoaded ? 'opacity-100' : 'opacity-0'
-          }`}
-          onLoad={() => setImageLoaded(true)}
+          className="w-full h-full object-contain bg-black"
         />
-
-        {/* Loading state */}
-        {!imageLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black z-20">
-            <div className="w-16 h-16 border-4 border-purple-600 border-t-purple-300 rounded-full animate-spin" />
-          </div>
-        )}
       </div>
 
       {/* Slide indicator dots - Top center (moved up) */}

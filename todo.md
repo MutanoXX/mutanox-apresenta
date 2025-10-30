@@ -27,4 +27,8 @@
 - [x] Melhorar fullscreen
 - [x] Melhorar animações do site
 - [x] Gerar arquivo ZIP com projeto completo
+- [x] Pré-carregar todas as imagens dos slides
+- [x] Melhorar introdução com efeito extremo letra por letra
+- [x] Botão entrar aparece após tudo estar pronto
+- [x] Remover efeito de carregamento que atrapalha transições
 
